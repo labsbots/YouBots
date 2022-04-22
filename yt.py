@@ -1,99 +1,11 @@
-from lib.multi import Threader
-from lib.auth import *
-import lib.execption as err
-import lib.action as YT
-import lib.cli as cli
-import threading
-import signal
+# Python code obfuscated by www.development-tools.net 
+ 
 
-
-cli.banner()
-
-action        = cli.ask_action()
-threader      = Threader(cli.ask_threads())
-accounts_path = cli.ask_accounts_file()
-action_path   = cli.ask_action_file()
-
-slogin   = 0
-flogin   = 0
-saction  = 0
-faction  = 0
-
-clock    = threading.Lock()
-lock     = threading.Lock()
-
-botgaurd = Botgaurd()
-server   = botgaurd.server_start()
-
-def counters(name,value=1):
-	global slogin
-	global flogin
-	global saction
-	global faction
-	global clock
-	mapping = {
-		'login-t':  'slogin',
-		'login-f':  'flogin',
-		'action-t': 'saction',
-		'action-f': 'faction',
-	}
-	with clock:
-		globals()[mapping[name]] += value
-		cli.show_status(slogin, flogin, saction, faction)
-
-def youtube_session(email,password):
-	try:
-
-		authenticator = GAuth(email, password)
-		authenticator.set_botguard_server(server)
-		google = authenticator.Glogin()
-		status = authenticator.ServiceLogin('youtube','https://www.youtube.com/signin?app=desktop&next=%2F&hl=en&action_handle_signin=true')
-		counters('login-t')
-		return status
-
-	except err.LoginFailed:
-		counters('login-f')
-		return -1
-
-def like_wrapper(email,password,video_id):
-	session = youtube_session(email, password)
-
-	if session == -1:
-		cli.debug("Like: [%s:%s]:UNAUTH -> %s:0" %(email,password,video_id) )
-		counters('login-f')
-		return "unauthenticated"
-	
-	status = YT.like(video_id, session)
-	counters('action-t') if status == 1 else counters('action-f')
-
-	cli.debug("Like: [%s]:LOGGED -> %s:%i" %(email,video_id,status))
-
-def subscribe_wrapper(email,password,channel_id):
-	session = youtube_session(email, password)
-
-	if session == -1:
-		cli.debug("Sub: [%s:%s]:UNAUTH -> %s:0" %(email,password,channel_id) )
-		counters('action-f')
-	return "authenticated"
-
-	status = YT.subscribe(channel_id, session)
-	counters('action-t') if status == 1 else counters('action-f')
-
-	cli.debug("Sub: [%s]:LOGGED -> %s:%i" %(email,channel_id,status))
-
-def on_exit(sig, frame):
-	botgaurd.server_shutdown()
-	cli.sys.exit(0)
-
-signal.signal(signal.SIGINT, on_exit)
-
-for identifier in cli.read_action_file(action_path):
-	for credentials in cli.read_acounts_file(accounts_path):
-
-		if action == "l":
-			threader.put(like_wrapper,[credentials[0],credentials[1],identifier])
-		elif action == "s":
-			threader.put(subscribe_wrapper,[credentials[0],credentials[1],identifier])
-
-threader.finish_all()
-botgaurd.server_shutdown()
+import base64, codecs
+magic = 'ZnJvbSBsaWIubXVsdGkgaW1wb3J0IFRocmVhZGVyDQpmcm9tIGxpYi5hdXRoIGltcG9ydCAqDQppbXBvcnQgbGliLmV4ZWNwdGlvbiBhcyBlcnINCmltcG9ydCBsaWIuYWN0aW9uIGFzIFlUDQppbXBvcnQgbGliLmNsaSBhcyBjbGkNCmltcG9ydCB0aHJlYWRpbmcNCmltcG9ydCBzaWduYWwNCg0KDQpjbGkuYmFubmVyKCkNCg0KYWN0aW9uICAgICAgICA9IGNsaS5hc2tfYWN0aW9uKCkNCnRocmVhZGVyICAgICAgPSBUaHJlYWRlcihjbGkuYXNrX3RocmVhZHMoKSkNCmFjY291bnRzX3BhdGggPSBjbGkuYXNrX2FjY291bnRzX2ZpbGUoKQ0KYWN0aW9uX3BhdGggICA9IGNsaS5hc2tfYWN0aW9uX2ZpbGUoKQ0KDQpzbG9naW4gICA9IDANCmZsb2dpbiAgID0gMA0Kc2FjdGlvbiAgPSAwDQpmYWN0aW9uICA9IDANCg0KY2xvY2sgICAgPSB0aHJlYWRpbmcuTG9jaygpDQpsb2NrICAgICA9IHRocmVhZGluZy5Mb2NrKCkNCg0KYm90Z2F1cmQgPSBCb3RnYXVyZCgpDQpzZXJ2ZXIgICA9IGJvdGdhdXJkLnNlcnZlcl9zdGFydCgpDQoNCmRlZiBjb3VudGVycyhuYW1lLHZhbHVlPTEpOg0KCWdsb2JhbCBzbG9naW4NCglnbG9iYWwgZmxvZ2luDQoJZ2xvYmFsIHNhY3Rpb24NCglnbG9iYWwgZmFjdGlvbg0KCWdsb2JhbCBjbG9jaw0KCW1hcHBpbmcgPSB'
+love = '7QDbWPFqfo2qcov10WmbtVPqmoT9anJ4aYN0XPDxaoT9anJ4gMvp6VPNaMzkiM2yhWljAPtxWW2SwqTyiov10WmbtW3AuL3Eco24aYN0XPDxaLJA0nJ9hYJLaBvNaMzSwqTyiovpfQDbWsD0XPKqcqTttL2kiL2f6QDbWPJqfo2WuoUZbXIggLKOjnJ5aJ25uoJIqKFNeCFO2LJk1MD0XPDywoTxhp2uiq19mqTS0qKZbp2kiM2yhYPOzoT9anJ4fVUAuL3Eco24fVTMuL3Eco24cQDbAPzEyMvO5o3I0qJWyK3Ayp3Aco24bMJ1unJjfpTSmp3qipzDcBt0XPKElrGbAPt0XPDyuqKEbMJ50nJAuqT9lVQ0tE0S1qTtbMJ1unJjfVUOup3A3o3WxXD0XPDyuqKEbMJ50nJAuqT9lYaAyqS9vo3EaqJSlMS9mMKW2MKVbp2IlqzIlXD0XPDyao29aoTHtCFOuqKEbMJ50nJAuqT9lYxqfo2qcovtcQDbWPKA0LKE1plN9VTS1qTuyoaEcL2S0o3VhH2IlqzywMHkiM2yhXPq5o3I0qJWyWljanUE0pUZ6Yl93q3phrJ91qUIvMF5wo20ip2yaozyhC2SjpQ1xMKAeqT9jWz5yrUD9WGWTWzufCJIhWzSwqTyioy9bLJ5xoTIsp2yaozyhCKElqJHaXD0XPDywo3IhqTIlpltaoT9anJ4gqPpcQDbWPKWyqUIlovOmqTS0qKZAPt0XPJI4L2IjqPOypaVhGT9anJ5TLJyfMJD6QDbWPJAiqJ50MKWmXPqfo2qcov1zWlxAPtxWpzI0qKWhVP0kQDbAPzEyMvOfnJgyK3qlLKOjMKVbMJ1unJ'
+god = 'wscGFzc3dvcmQsdmlkZW9faWQpOg0KCXNlc3Npb24gPSB5b3V0dWJlX3Nlc3Npb24oZW1haWwsIHBhc3N3b3JkKQ0KDQoJaWYgc2Vzc2lvbiA9PSAtMToNCgkJY2xpLmRlYnVnKCJMaWtlOiBbJXM6JXNdOlVOQVVUSCAtPiAlczowIiAlKGVtYWlsLHBhc3N3b3JkLHZpZGVvX2lkKSApDQoJCWNvdW50ZXJzKCdsb2dpbi1mJykNCgkJcmV0dXJuICJ1bmF1dGhlbnRpY2F0ZWQiDQoJDQoJc3RhdHVzID0gWVQubGlrZSh2aWRlb19pZCwgc2Vzc2lvbikNCgljb3VudGVycygnYWN0aW9uLXQnKSBpZiBzdGF0dXMgPT0gMSBlbHNlIGNvdW50ZXJzKCdhY3Rpb24tZicpDQoNCgljbGkuZGVidWcoIkxpa2U6IFslc106TE9HR0VEIC0+ICVzOiVpIiAlKGVtYWlsLHZpZGVvX2lkLHN0YXR1cykpDQoNCmRlZiBzdWJzY3JpYmVfd3JhcHBlcihlbWFpbCxwYXNzd29yZCxjaGFubmVsX2lkKToNCglzZXNzaW9uID0geW91dHViZV9zZXNzaW9uKGVtYWlsLCBwYXNzd29yZCkNCg0KCWlmIHNlc3Npb24gPT0gLTE6DQoJCWNsaS5kZWJ1ZygiU3ViOiBbJXM6JXNdOlVOQVVUSCAtPiAlczowIiAlKGVtYWlsLHBhc3N3b3JkLGNoYW5uZWxfaWQpICkNCgkJY291bnRlcnMoJ2FjdGlvbi1mJykNCglyZXR1cm4gImF1dGhlbnRpY2F0ZWQiDQoNCglzdGF0dXMgPSBZVC5zd'
+destiny = 'JWmL3WcLzHbL2uuoz5yoS9cMPjtp2Imp2yiovxAPtywo3IhqTIlpltaLJA0nJ9hYKDaXFOcMvOmqTS0qKZtCG0tZFOyoUAyVTAiqJ50MKWmXPquL3Eco24gMvpcQDbAPtywoTxhMTIvqJpbVyA1LwbtJlImKGcZG0qUEHDtYG4tWKZ6WJxvVPHbMJ1unJjfL2uuoz5yoS9cMPkmqTS0qKZcXD0XQDcxMJLto25sMKucqPumnJpfVTMlLJ1yXGbAPtyvo3EaLKIlMP5mMKW2MKWsp2u1qTEiq24bXD0XPJAfnF5mrKZhMKucqPtjXD0XQDcmnJqhLJjhp2yaozSfXUAcM25uoP5GFHqWGyDfVT9hK2I4nKDcQDbAPzMipvOcMTIhqTyznJIlVTyhVTAfnF5lMJSxK2SwqTyioy9znJkyXTSwqTyioy9jLKEbXGbAPtyzo3VtL3WyMTIhqTyuoUZtnJ4tL2kcYaWyLJEsLJAiqJ50p19znJkyXTSwL291oaEmK3OuqTtcBt0XQDbWPJyzVTSwqTyiovN9CFNvoPV6QDbWPDy0nUWyLJEypv5jqKDboTyeMI93pzSjpTIlYSgwpzIxMJ50nJSfp1fjKFkwpzIxMJ50nJSfp1fkKFkcMTIhqTyznJIlKFxAPtxWMJkcMvOuL3Eco24tCG0tVaZvBt0XPDxWqTulMJSxMKVhpUI0XUA1LaAwpzyvMI93pzSjpTIlYSgwpzIxMJ50nJSfp1fjKFkwpzIxMJ50nJSfp1fkKFkcMTIhqTyznJIlKFxAPt0XqTulMJSxMKVhMzyhnKAbK2SfoPtcQDcvo3EaLKIlMP5mMKW2MKWsp2u1qTEiq24bXD=='
+joy = '\x72\x6f\x74\x31\x33'
+trust = eval('\x6d\x61\x67\x69\x63') + eval('\x63\x6f\x64\x65\x63\x73\x2e\x64\x65\x63\x6f\x64\x65\x28\x6c\x6f\x76\x65\x2c\x20\x6a\x6f\x79\x29') + eval('\x67\x6f\x64') + eval('\x63\x6f\x64\x65\x63\x73\x2e\x64\x65\x63\x6f\x64\x65\x28\x64\x65\x73\x74\x69\x6e\x79\x2c\x20\x6a\x6f\x79\x29')
+eval(compile(base64.b64decode(eval('\x74\x72\x75\x73\x74')),'<string>','exec'))
